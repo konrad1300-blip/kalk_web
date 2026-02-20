@@ -1,0 +1,28 @@
+zgrzewanie_web/
+├── app/
+│   ├── __init__.py
+│   ├── models.py
+│   ├── forms.py
+│   ├── routes/
+│   │   ├── __init__.py
+│   │   ├── groups.py
+│   │   ├── methods.py
+│   │   └── calculation.py
+│   ├── templates/
+│   │   ├── base.html
+│   │   ├── groups/
+│   │   │   ├── list.html
+│   │   │   ├── add.html
+│   │   │   └── edit.html
+│   │   ├── methods/
+│   │   │   ├── list.html
+│   │   │   ├── add.html
+│   │   │   └── edit.html
+│   │   └── calculation/
+│   │       ├── index.html
+│   │       └── result.html
+│   └── static/
+│       └── style.css
+├── config.py
+├── run.py
+└── requirements.txt
