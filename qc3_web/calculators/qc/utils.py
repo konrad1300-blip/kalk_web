@@ -116,10 +116,10 @@ def generate_pdf(report_data, calculations):
     story = []
     styles = getSampleStyleSheet()
 
-    # Próba rejestracji czcionek (jeśli dostępne)
+    # Próba rejestracji czcionek z folderu fonts
     try:
-        pdfmetrics.registerFont(TTFont('Arial', 'arial.ttf'))
-        pdfmetrics.registerFont(TTFont('Arial-Bold', 'arialbd.ttf'))
+        pdfmetrics.registerFont(TTFont('Arial', 'fonts/arial.ttf'))
+        pdfmetrics.registerFont(TTFont('Arial-Bold', 'fonts/arialbd.ttf'))
         FONT_NAME = 'Arial'
         FONT_BOLD = 'Arial-Bold'
     except:

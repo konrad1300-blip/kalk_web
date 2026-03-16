@@ -20,6 +20,27 @@ def form():
     controllers = [c.strip() for c in config['Controllers']['controllers'].split(',')]
     form.reporter.choices = [(c, c) for c in controllers]
 
+    # Sprawdź czy trzeba wczytać raport z historii
+    load_id = request.args.get('load_id')
+    if load_id:
+        db = DatabaseHandler(current_app.config['DATABASE'])
+        report = db.get_report_by_id(load_id)
+        if report:
+            # Wypełnij formularz danymi z raportu
+            form.product_number.data = report['product_number']
+            form.shipping_direction.data = report['shipping_direction']
+            form.pallet_type.data = report['pallet_type']
+            form.certified.data = report['certified']
+            form.pallet_size.data = report['pallet_size']
+            form.extensions.data = report['extensions']
+            form.cartons.data = report['cartons']
+            form.products.data = report['products']
+            form.max_per_pallet.data = report['max_per_pallet']
+            form.stack_type.data = report['stack_type']
+            form.unit_weight.data = report['unit_weight']
+            form.reporter.data = report['reporter']
+            flash('Wczytano raport z historii. Możesz go edytować i wygenerować nowy PDF.', 'info')
+
     if request.method == 'POST' and form.validate():
         data = form.data.copy()
         # Dodaj datę raportu
@@ -137,6 +158,31 @@ def delete_report(report_id):
     db = DatabaseHandler(current_app.config['DATABASE'])
     db.delete_report(report_id)
     return jsonify({'success': True})
+
+# ----------------------------------------------------------------------
+# Pobieranie pojedynczego raportu do edycji
+# ----------------------------------------------------------------------
+@qc_bp.route('/history/get/<int:report_id>', methods=['GET'])
+def get_report(report_id):
+    db = DatabaseHandler(current_app.config['DATABASE'])
+    report = db.get_report_by_id(report_id)
+    if report:
+        return jsonify({
+            'id': report['id'],
+            'product_number': report['product_number'],
+            'shipping_direction': report['shipping_direction'],
+            'pallet_type': report['pallet_type'],
+            'certified': report['certified'],
+            'pallet_size': report['pallet_size'],
+            'extensions': report['extensions'],
+            'cartons': report['cartons'],
+            'products': report['products'],
+            'max_per_pallet': report['max_per_pallet'],
+            'stack_type': report['stack_type'],
+            'unit_weight': report['unit_weight'],
+            'reporter': report['reporter']
+        })
+    return jsonify({'error': 'Raport nie znaleziony'}), 404
 
 # ----------------------------------------------------------------------
 # Statystyki

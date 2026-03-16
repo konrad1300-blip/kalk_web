@@ -205,3 +205,12 @@ class DatabaseHandler:
         cursor.execute('DELETE FROM reports WHERE id = ?', (report_id,))
         conn.commit()
         conn.close()
+
+    def get_report_by_id(self, report_id):
+        """Pobiera pojedynczy raport po ID."""
+        conn = self.connect()
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM reports WHERE id = ?', (report_id,))
+        row = cursor.fetchone()
+        conn.close()
+        return row

@@ -103,7 +103,7 @@ function loadHistoryData() {
             var tbody = $('#historyTable tbody');
             tbody.empty();
             data.forEach(function(row) {
-                var tr = $('<tr>');
+                var tr = $('<tr class="clickable-row" data-id="' + row.id + '">');
                 tr.append('<td>' + row.id + '</td>');
                 tr.append('<td>' + row.product_number + '</td>');
                 tr.append('<td>' + row.report_date + '</td>');
@@ -116,7 +116,7 @@ function loadHistoryData() {
                 tr.append('<td>' + row.cartons + '</td>');
                 tr.append('<td>' + row.full_pallets + '</td>');
                 tr.append('<td>' + row.total_weight_all + '</td>');
-                tr.append('<td><button class="delete-btn" data-id="' + row.id + '">Usuń</button></td>');
+                tr.append('<td><button class="delete-btn" data-id="' + row.id + '" onclick="event.stopPropagation()">Usuń</button></td>');
                 tbody.append(tr);
             });
             // Obsługa przycisków usuwania
@@ -177,6 +177,29 @@ function exportHistory() {
         }
     });
 }
+
+// ----------------------------------------------------------------------
+// Wczytywanie raportu do formularza
+// ----------------------------------------------------------------------
+function loadReportToForm(reportId) {
+    $.ajax({
+        url: '/qc/history/get/' + reportId,
+        method: 'GET',
+        success: function(data) {
+            // Przekieruj do formularza z danymi
+            window.location.href = '/qc/?load_id=' + reportId;
+        },
+        error: function() {
+            alert('Nie udało się wczytać raportu.');
+        }
+    });
+}
+
+// Obsługa kliknięcia w wiersz tabeli historii
+$(document).on('click', '.clickable-row', function() {
+    var reportId = $(this).data('id');
+    loadReportToForm(reportId);
+});
 
 // ----------------------------------------------------------------------
 // Funkcje statystyk
