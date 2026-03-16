@@ -4,7 +4,7 @@ from app.models import Grupa, Metoda, Obliczenie
 from app.forms import ObliczeniaForm, WalidacjaForm
 import json
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
 import io
 import openpyxl
 from openpyxl.styles import Font, Alignment, PatternFill
@@ -169,8 +169,38 @@ def zapisz():
 
 @bp.route('/historia')
 def historia():
-    obliczenia = Obliczenie.query.order_by(Obliczenie.data.desc()).all()
-    return render_template('calculation/historia.html', obliczenia=obliczenia)
+    # Pobieranie parametrów filtrowania
+    kod_filter = request.args.get('kod', '').strip()
+    data_od = request.args.get('data_od', '').strip()
+    data_do = request.args.get('data_do', '').strip()
+    
+    # Budowanie zapytania z filtrami
+    query = Obliczenie.query
+    
+    if kod_filter:
+        query = query.filter(Obliczenie.kod.like(f'%{kod_filter}%'))
+    
+    if data_od:
+        try:
+            data_od_obj = datetime.strptime(data_od, '%Y-%m-%d')
+            query = query.filter(Obliczenie.data >= data_od_obj)
+        except ValueError:
+            pass
+    
+    if data_do:
+        try:
+            data_do_obj = datetime.strptime(data_do, '%Y-%m-%d')
+            # Dodajemy jeden dzień, żeby data_do była włączona
+            from datetime import timedelta
+            data_do_obj = data_do_obj + timedelta(days=1)
+            query = query.filter(Obliczenie.data < data_do_obj)
+        except ValueError:
+            pass
+    
+    obliczenia = query.order_by(Obliczenie.data.desc()).all()
+    
+    return render_template('calculation/historia.html', obliczenia=obliczenia, 
+                           kod_filter=kod_filter, data_od=data_od, data_do=data_do)
 
 @bp.route('/eksport/<int:obliczenie_id>')
 def eksport(obliczenie_id):
@@ -273,5 +303,17 @@ def eksport_wszystkie():
         output,
         as_attachment=True,
         download_name='wszystkie_obliczenia.xlsx',
-        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetsheetml.sheet'
     )
+
+@bp.route('/usun/<int:obliczenie_id>', methods=['POST'])
+def usun(obliczenie_id):
+    try:
+        obliczenie = Obliczenie.query.get_or_404(obliczenie_id)
+        db.session.delete(obliczenie)
+        db.session.commit()
+        flash('Obliczenie zostało usunięte.', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Błąd podczas usuwania: {str(e)}', 'danger')
+    return redirect(url_for('calculation.historia'))
