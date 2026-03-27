@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator szerokości tekstu</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        label, input, button { display: block; margin: 10px 0; }
+        input[type=text] { width: 300px; padding: 8px; }
+        button { padding: 8px 15px; background: #007bff; color: white; border: none; cursor: pointer; }
+        .result { margin-top: 20px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href = "/">Strona główna</a>
+    </nav>
+    <div class="container">
+    <h1>Kalkulator szerokości tekstu (w mm)</h1>
+    <br><hr>
+    <p>Kalkulator podaje w milimetrach długość napisu wykonanego drukarką EBS przy wysokości czcionki 50 mm</p>
+    <br><hr><br>
+    <form method="post">
+        <label for="text">Wpisz tekst:</label>
+        <input type="text" id="text" name="text" required>
+        <button type="submit">Oblicz</button>
+    </form>
+
+    {% if result %}
+        <div class="result">{{ result }}</div>
+    {% endif %}
+    </div>
+</body>
+</html>
